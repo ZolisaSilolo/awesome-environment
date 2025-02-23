@@ -7,7 +7,7 @@ Imagine building a digital "Nkandla" (but this one actually works) for South Afr
 🇿🇦 "Aikona!" to insurance claims drowning in legacy systems!  
 🇿🇦 "Eish!" to e-commerce sites folding under Black Friday traffic!  
 This setup is your digital bouncer, traffic cop, and backup generator – all in one.
-
+and can be deployed globally at a scalable, secure and robust level.
 ---
 
 ## 🌍 Table of Contents  
