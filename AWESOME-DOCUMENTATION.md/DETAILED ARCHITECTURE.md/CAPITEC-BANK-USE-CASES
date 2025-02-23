@@ -1,0 +1,19 @@
+# Implementing Awesome Environment at Capitec Bank
+
+## High Availability and Scalability
+- **Problem:** High traffic during month-end and promotional periods causes service disruptions.
+- **Solution:** Implement the EC2 Auto Scaling and Elastic Load Balancer to handle traffic spikes efficiently.
+
+## Security
+- **Problem:** Protection of sensitive customer data.
+- **Solution:** Use Security Groups, WAF rules, and encrypted Backup Vaults to ensure data security and compliance with regulations.
+
+## Database Management
+- **Problem:** Efficient handling of transactional data.
+- **Solution:** Utilize RDS for reliable banking transactions and DynamoDB for fast, high-speed data operations.
+
+## Disaster Recovery
+- **Problem:** Ensuring data availability and integrity in case of disasters.
+- **Solution:** Use AWS Backup Plan and cross-region replication for reliable disaster recovery.
+
+For more details, refer to the [README.md](https://github.com/ZolisaSilolo/awesome-environment/blob/8c456ba2a484d8117a15aa1fa6606a59f3180deb/README.md) of the project.
