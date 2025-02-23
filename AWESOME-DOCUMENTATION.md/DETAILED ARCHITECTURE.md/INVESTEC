@@ -1,0 +1,19 @@
+# Implementing Awesome Environment at Investec
+
+## High Availability and Scalability
+- **Problem:** Need for seamless online banking experience.
+- **Solution:** EC2 Auto Scaling and Elastic Load Balancer to manage fluctuating traffic.
+
+## Security
+- **Problem:** Need for robust security measures to protect high-net-worth client data.
+- **Solution:** Implement Security Groups and WAF rules to block unauthorized access and threats.
+
+## Disaster Recovery
+- **Problem:** Ensuring data availability and integrity in case of disasters.
+- **Solution:** Use AWS Backup Plan and cross-region replication for reliable disaster recovery.
+
+## Database Management
+- **Problem:** Efficient handling of transactional data.
+- **Solution:** Utilize RDS for reliable banking transactions and DynamoDB for fast, high-speed data operations.
+
+For more details, refer to the [README.md](https://github.com/ZolisaSilolo/awesome-environment/blob/8c456ba2a484d8117a15aa1fa6606a59f3180deb/README.md) of the project.
