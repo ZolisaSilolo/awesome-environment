@@ -1,10 +1,3 @@
----
-
-## 2. main-template.yaml
-
-Below is a single CloudFormation template that attempts to be “kitchen sink” while also integrating AWS Backup for automatic backups, cross‐region DR, and real‐time alerts. *Replace all placeholders* (commented in the code) before deploying!
-
-```yaml
 AWSTemplateFormatVersion: '2010-09-09'
 Description: >
   AwesomeEnvironment: A fundamental AWS architecture with VPC, subnets,
@@ -44,7 +37,7 @@ Parameters:
   DBPassword:
     Type: String
     NoEcho: true
-    Default: password1234
+    Default: password_is_awesome
 
   PeerVpcId:
     Type: String
@@ -54,10 +47,10 @@ Parameters:
     Type: String
     Default: us-west-2
 
-  # The name of your domain (if using Route53). Adjust as needed.
+  # The name of your domain (since we're gonna be using Route53). Adjust as needed though.
   DomainName:
     Type: String
-    Default: example.com
+    Default: awesome.com
 
   # For cross-region backup. The region you want to copy backups to:
   DRRegion:
@@ -383,7 +376,7 @@ Resources:
       Type: A
       TTL: '300'
       ResourceRecords:
-        - "1.2.3.4" # PLACEHOLDER: Replace with ELB DNS name or IP
+        - "1.2.3.4" # I put some PLACEHOLDER here: Replace with ELB DNS name or IP
 
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -416,7 +409,8 @@ Resources:
           Value: AwesomeEnvPeering
 
   # ------------------
-  # 6) AWS Backup for Automated Backups, Retention, and Cross-Region DR
+  # 6) Okay, now that we are here,
+  # we are going to initiate the AWS Backup for Automated Backups, Retention, and Cross-Region DR
   # ------------------
 
   # A vault in the current region
@@ -424,7 +418,7 @@ Resources:
     Type: AWS::Backup::BackupVault
     Properties:
       BackupVaultName: AwesomeEnvPrimaryVault
-      EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID" # Optional
+      EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID" # well this is Optional
       Notifications:
         SNSTopicArn: !GetAtt BackupAlertsTopic.Arn
         BackupVaultEvents:
@@ -435,11 +429,12 @@ Resources:
           - COPY_JOB_FAILED
 
   # (Optional) If you want to define a cross-region vault, you'd do it in that region's stack. 
-  # For demonstration, we define the copy in the plan below, but you might need a separate stack 
+  # Just to demonstrate, here we're gonna define the copy in the plan below, but you might need a separate stack, 
+  #I put this here as bait to stimulate participation in my code.
   # in the DR region with a vault named "AwesomeEnvDRVault". The plan references that vault's ARN.
 
   # Backup Plan with cross-region copy rules
-  BackupPlan:
+  BackupPlan:AWESOME_BACKUP_PLAN
     Type: AWS::Backup::BackupPlan
     Properties:
       BackupPlan:
@@ -447,7 +442,7 @@ Resources:
         Rules:
           - RuleName: DailyRDSBackup
             TargetBackupVault: !Ref PrimaryBackupVault
-            ScheduleExpression: cron(0 3 * * ? *) # Daily at 03:00 UTC
+            ScheduleExpression: cron(0 3 * * ? *) # Daily at 03:00 CAT
             StartWindowMinutes: 60
             CompletionWindowMinutes: 180
             Lifecycle:
@@ -486,7 +481,7 @@ Resources:
     Properties:
       TopicArn: !Ref BackupAlertsTopic
       Protocol: email
-      Endpoint: PLACEHOLDER@example.com # Replace with your email address
+      Endpoint: awesome@example.com # Replace with your email address
 
   # Example of using EventBridge (CloudWatch Events) to get more fine-grained notifications
   BackupEventRule:
@@ -527,18 +522,18 @@ Outputs:
     Description: DNS name of the ELB
     Value: !GetAtt MyLoadBalancer.DNSName
 
-  S3BucketName:
+  S3BucketName:Awesome-Bucket
     Description: Name of the S3 bucket
     Value: !Ref MyS3Bucket
 
-  DynamoDBTableName:
+  DynamoDBTableName:Awesometable
     Description: Name of the DynamoDB table
     Value: !Ref DynamoDBTable
 
-  DBInstanceEndpoint:
+  DBInstanceEndpoint:AwesomeDB
     Description: Endpoint of the RDS instance
     Value: !GetAtt MyDBInstance.Endpoint.Address
 
-  BackupVaultName:
+  BackupVaultName:Awesome_Backup
     Description: Name of the Backup Vault
     Value: !Ref PrimaryBackupVault
