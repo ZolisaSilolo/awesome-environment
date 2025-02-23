@@ -1,0 +1,45 @@
+# Use Cases for Capitec Bank, Investec, and Standard Bank
+
+## Capitec Bank
+
+### High Availability and Scalability
+- **Problem:** High traffic during month-end and promotional periods causes service disruptions.
+- **Solution:** Implement the EC2 Auto Scaling and Elastic Load Balancer to handle traffic spikes efficiently.
+
+### Security
+- **Problem:** Protection of sensitive customer data.
+- **Solution:** Use Security Groups, WAF rules, and encrypted Backup Vaults to ensure data security and compliance with regulations.
+
+### Database Management
+- **Problem:** Efficient handling of transactional data.
+- **Solution:** Utilize RDS for reliable banking transactions and DynamoDB for fast, high-speed data operations.
+
+## Investec
+
+### High Availability and Scalability
+- **Problem:** Need for seamless online banking experience.
+- **Solution:** EC2 Auto Scaling and Elastic Load Balancer to manage fluctuating traffic.
+
+### Security
+- **Problem:** Need for robust security measures to protect high-net-worth client data.
+- **Solution:** Implement Security Groups and WAF rules to block unauthorized access and threats.
+
+### Disaster Recovery
+- **Problem:** Ensuring data availability and integrity in case of disasters.
+- **Solution:** Use AWS Backup Plan and cross-region replication for reliable disaster recovery.
+
+## Standard Bank
+
+### High Availability and Scalability
+- **Problem:** Handling high volumes of transactions and customer interactions.
+- **Solution:** Auto Scaling and Load Balancing to ensure system reliability and performance.
+
+### Security
+- **Problem:** Compliance with regulatory requirements and protection of customer data.
+- **Solution:** Comprehensive security layers including Security Groups, WAF, and encrypted backups.
+
+### Database Management
+- **Problem:** Efficient handling of structured and unstructured data.
+- **Solution:** RDS for structured transactional data and DynamoDB for high-speed operations.
+
+For more details, refer to the [README.md](https://github.com/ZolisaSilolo/awesome-environment/blob/8c456ba2a484d8117a15aa1fa6606a59f3180deb/README.md) of the project.
