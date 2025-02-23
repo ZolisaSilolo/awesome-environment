@@ -107,30 +107,4 @@ and can be deployed globally at a scalable, secure and robust level.
 *SNS Alerts:*  
 - Pings your team faster than a WhatsApp "EskomSePush" notification  
 
----
 
-## 🖼 Diagram – A Picture Worth a Thousand Boerewors
-
-```mermaid
-flowchart LR
-    subgraph VPC[Digital Township]
-    direction TB
-        IGW(Internet Gateway) --> PublicSubnet1{{🏢 Public Subnet 1}}
-        IGW --> PublicSubnet2{{🏢 Public Subnet 2}}
-        NAT(NAT Gateway) --> PrivateSubnet1{{🔒 Private Subnet 1}}
-        NAT --> PrivateSubnet2{{🔒 Private Subnet 2}}
-
-        ASG[🦾 Auto Scaling EC2] --> ELB[🎯 Elastic Load Balancer]
-        ELB --> RDS[(🏦 RDS MySQL)]
-        ELB --> DynamoDB[(🛍 DynamoDB)]
-        ELB --> S3[(🪣 S3 Bucket)]
-    end
-
-    CloudFront((🌍 CloudFront)) --> S3
-    Route53((📍 Route 53)) --> ELB
-    WAF((🛡 WAF)) --> ELB
-
-    subgraph DR[Disaster Recovery Kraal]
-        BackupVault[📀 Primary Backups] --> DRVault[📀 DR in Cape Town]
-        SNS📱 --> |"🚨 Backup failed, china!"| DevOpsTeam
-    end
