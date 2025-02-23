@@ -8,7 +8,7 @@ Imagine building a digital "Nkandla" (but this one actually works) for South Afr
 🇿🇦 "Eish!" to e-commerce sites folding under Black Friday traffic!  
 This setup is your digital bouncer, traffic cop, and backup generator – all in one.
 and can be deployed globally at a scalable, secure and robust level.
----
+---With some fail-proof Disaster Recovery capabilities.
 
 ## 🌍 Table of Contents  
 1. [High-Level Overview](#-high-level-overview)  
