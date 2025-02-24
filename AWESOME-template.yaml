@@ -224,7 +224,7 @@ Resources:
   MyLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      ImageId: ami-1234567890abcdef # PLACEHOLDER: Replace with valid AMI
+      ImageId: ami-1234567890abcdef # PLACEHOLDER: Replace with valid AMI in your region
       InstanceType: t2.micro
       KeyName: !Ref KeyName
       SecurityGroups:
@@ -273,7 +273,7 @@ Resources:
   MyS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: awesome-env-bucket-PLACEHOLDER # Must be globally unique
+      BucketName: awesome-env-bucket-PLACEHOLDER  # Must be globally unique
 
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -376,7 +376,7 @@ Resources:
       Type: A
       TTL: '300'
       ResourceRecords:
-        - 1.2.3.4 # PLACEHOLDER: Replace with ELB DNS name
+        - "1.2.3.4" # I put some PLACEHOLDER here: Replace with ELB DNS name or IP
 
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -414,9 +414,23 @@ Resources:
     Type: AWS::Backup::BackupVault
     Properties:
       BackupVaultName: AwesomeEnvPrimaryVault
-      EncryptionKeyArn: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID # Optional
+      EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID" # well this is Optional
+      Notifications:
+        SNSTopicArn: !GetAtt BackupAlertsTopic.Arn
+        BackupVaultEvents:
+          - BACKUP_JOB_STARTED
+          - BACKUP_JOB_COMPLETED
+          - COPY_JOB_STARTED
+          - COPY_JOB_SUCCESSFUL
+          - COPY_JOB_FAILED
 
-  BackupPlan:
+  # (Optional) If you want to define a cross-region vault, you'd do it in that region's stack. 
+  # Just to demonstrate, here we're gonna define the copy in the plan below, but you might need a separate stack, 
+  #I put this here as bait to stimulate participation in my code.
+  # in the DR region with a vault named "AwesomeEnvDRVault". The plan references that vault's ARN.
+
+  # Backup Plan with cross-region copy rules
+  BackupPlan:AWESOME_BACKUP_PLAN
     Type: AWS::Backup::BackupPlan
     Properties:
       BackupPlan:
@@ -457,7 +471,21 @@ Resources:
     Properties:
       TopicArn: !Ref BackupAlertsTopic
       Protocol: email
-      Endpoint: awesome@example.com # PLACEHOLDER: Replace with your email
+      Endpoint: awesome@example.com # Replace with your email address
+
+  # Example of using EventBridge (CloudWatch Events) to get more fine-grained notifications
+  BackupEventRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: AwesomeEnvBackupEvents
+      Description: Captures backup events for real-time alerts
+      EventPattern:
+        source:
+          - aws.backup
+      State: ENABLED
+      Targets:
+        - Arn: !Ref BackupAlertsTopic
+          Id: "BackupAlertsTopic"
 
 Outputs:
   VPCId:
