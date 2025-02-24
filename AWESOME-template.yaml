@@ -225,6 +225,7 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: ami-1234567890abcdef # PLACEHOLDER: Replace with valid AMI
+      ImageId: ami-1234567890abcdef  # PLACEHOLDER: Replace with valid AMI
       InstanceType: t2.micro
       KeyName: !Ref KeyName
       SecurityGroups:
@@ -377,6 +378,7 @@ Resources:
       TTL: '300'
       ResourceRecords:
         - 1.2.3.4 # PLACEHOLDER: Replace with ELB DNS name
+        - "1.2.3.4"  # PLACEHOLDER: Replace with ELB DNS name
 
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -416,6 +418,9 @@ Resources:
     Properties:
       BackupVaultName: AwesomeEnvPrimaryVault
       EncryptionKeyArn: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID # Optional
+
+  BackupPlan:
+      EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID"  # Optional
 
   BackupPlan:
     Type: AWS::Backup::BackupPlan
@@ -461,6 +466,7 @@ Resources:
       TopicArn: !Ref BackupAlertsTopic
       Protocol: email
       Endpoint: awesome@example.com # PLACEHOLDER: Replace with your email
+      Endpoint: awesome@example.com  # PLACEHOLDER: Replace with your email
 
 Outputs:
   VPCId:
