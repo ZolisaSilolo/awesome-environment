@@ -224,7 +224,7 @@ Resources:
   MyLaunchConfig:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
-      ImageId: ami-1234567890abcdef # PLACEHOLDER: Replace with valid AMI in your region
+      ImageId: ami-1234567890abcdef # PLACEHOLDER: Replace with valid AMI
       InstanceType: t2.micro
       KeyName: !Ref KeyName
       SecurityGroups:
@@ -376,7 +376,7 @@ Resources:
       Type: A
       TTL: '300'
       ResourceRecords:
-        - "1.2.3.4" # I put some PLACEHOLDER here: Replace with ELB DNS name or IP
+        - 1.2.3.4 # PLACEHOLDER: Replace with ELB DNS name
 
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
@@ -409,28 +409,15 @@ Resources:
 
   # ------------------
   # 6) Backup & DR
+  # 6) Backup & DR
   # ------------------
   PrimaryBackupVault:
     Type: AWS::Backup::BackupVault
     Properties:
       BackupVaultName: AwesomeEnvPrimaryVault
-      EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID" # well this is Optional
-      Notifications:
-        SNSTopicArn: !GetAtt BackupAlertsTopic.Arn
-        BackupVaultEvents:
-          - BACKUP_JOB_STARTED
-          - BACKUP_JOB_COMPLETED
-          - COPY_JOB_STARTED
-          - COPY_JOB_SUCCESSFUL
-          - COPY_JOB_FAILED
+      EncryptionKeyArn: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID # Optional
 
-  # (Optional) If you want to define a cross-region vault, you'd do it in that region's stack. 
-  # Just to demonstrate, here we're gonna define the copy in the plan below, but you might need a separate stack, 
-  #I put this here as bait to stimulate participation in my code.
-  # in the DR region with a vault named "AwesomeEnvDRVault". The plan references that vault's ARN.
-
-  # Backup Plan with cross-region copy rules
-  BackupPlan:AWESOME_BACKUP_PLAN
+  BackupPlan:
     Type: AWS::Backup::BackupPlan
     Properties:
       BackupPlan:
@@ -438,6 +425,7 @@ Resources:
         Rules:
           - RuleName: DailyRDSBackup
             TargetBackupVault: !Ref PrimaryBackupVault
+            ScheduleExpression: cron(0 3 * * ? *)
             ScheduleExpression: cron(0 3 * * ? *)
             StartWindowMinutes: 60
             CompletionWindowMinutes: 180
@@ -460,6 +448,7 @@ Resources:
 
   # ------------------
   # 7) SNS Alerts
+  # 7) SNS Alerts
   # ------------------
   BackupAlertsTopic:
     Type: AWS::SNS::Topic
@@ -471,21 +460,7 @@ Resources:
     Properties:
       TopicArn: !Ref BackupAlertsTopic
       Protocol: email
-      Endpoint: awesome@example.com # Replace with your email address
-
-  # Example of using EventBridge (CloudWatch Events) to get more fine-grained notifications
-  BackupEventRule:
-    Type: AWS::Events::Rule
-    Properties:
-      Name: AwesomeEnvBackupEvents
-      Description: Captures backup events for real-time alerts
-      EventPattern:
-        source:
-          - aws.backup
-      State: ENABLED
-      Targets:
-        - Arn: !Ref BackupAlertsTopic
-          Id: "BackupAlertsTopic"
+      Endpoint: awesome@example.com # PLACEHOLDER: Replace with your email
 
 Outputs:
   VPCId:
@@ -513,17 +488,21 @@ Outputs:
     Value: !GetAtt MyLoadBalancer.DNSName
 
   S3BucketName:
+  S3BucketName:
     Description: Name of the S3 bucket
     Value: !Ref MyS3Bucket
 
+  DynamoDBTableName:
   DynamoDBTableName:
     Description: Name of the DynamoDB table
     Value: !Ref DynamoDBTable
 
   DBInstanceEndpoint:
+  DBInstanceEndpoint:
     Description: Endpoint of the RDS instance
     Value: !GetAtt MyDBInstance.Endpoint.Address
 
+  BackupVaultName:
   BackupVaultName:
     Description: Name of the Backup Vault
     Value: !Ref PrimaryBackupVault
