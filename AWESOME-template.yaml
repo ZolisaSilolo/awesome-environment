@@ -7,6 +7,29 @@ Parameters:
     Type: String
     Default: 10.0.0.0/16
     Description: The CIDR block for the VPC.
+  DRRegion:
+    Type: String
+    Default: us-west-2
+    Description: The region to copy backups for DR.
+
+  # Add the new parameters here
+  EnableCrossRegionBackup:
+    Type: String
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Default: 'true'
+    Description: Enable cross-region backup copying
+
+  BackupRetentionDays:
+    Type: Number
+    Default: '30'
+    Description: Number of days to retain backups in primary region
+
+  DRBackupRetentionDays:
+    Type: Number
+    Default: '60'
+    Description: Number of days to retain backups in DR region
 
   PublicSubnet1CIDR:
     Type: String
@@ -49,10 +72,10 @@ Parameters:
     Type: String
     Default: awesome.com
 
-  DRRegion:
-    Type: String
-    Default: us-west-2
-    Description: The region to copy backups for DR.
+Condition:
+  EnableCrossRegionBackup: !Equals
+    - !Ref EnableCrossRegionBackup
+    - true
 
 Resources:
   # ------------------
@@ -225,7 +248,6 @@ Resources:
     Type: AWS::AutoScaling::LaunchConfiguration
     Properties:
       ImageId: ami-1234567890abcdef # PLACEHOLDER: Replace with valid AMI
-      ImageId: ami-1234567890abcdef  # PLACEHOLDER: Replace with valid AMI
       InstanceType: t2.micro
       KeyName: !Ref KeyName
       SecurityGroups:
@@ -274,7 +296,7 @@ Resources:
   MyS3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: awesome-env-bucket-PLACEHOLDER  # Must be globally unique
+      BucketName: awesome-env-bucket-PLACEHOLDER # Must be globally unique
 
   DynamoDBTable:
     Type: AWS::DynamoDB::Table
@@ -378,13 +400,11 @@ Resources:
       TTL: '300'
       ResourceRecords:
         - 1.2.3.4 # PLACEHOLDER: Replace with ELB DNS name
-        - "1.2.3.4"  # PLACEHOLDER: Replace with ELB DNS name
 
   MyCloudFrontDistribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
-        Enabled: true
         Origins:
           - Id: S3Origin
             DomainName: !GetAtt MyS3Bucket.DomainName
@@ -394,7 +414,15 @@ Resources:
           ViewerProtocolPolicy: redirect-to-https
           ForwardedValues:
             QueryString: false
+          DefaultTTL: 86400 # This is the correct way to set TTL (in seconds, 86400 = 24 hours)
         DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http1.1
+        ViewerCertificate:
+          CloudFrontDefaultCertificate: true
+        Aliases:
+          - !Ref DomainName
+          - !Sub www.${DomainName}
 
   # ------------------
   # 5) VPC Peering
@@ -411,16 +439,12 @@ Resources:
 
   # ------------------
   # 6) Backup & DR
-  # 6) Backup & DR
   # ------------------
   PrimaryBackupVault:
     Type: AWS::Backup::BackupVault
     Properties:
       BackupVaultName: AwesomeEnvPrimaryVault
       EncryptionKeyArn: !Sub arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID # Optional
-
-  BackupPlan:
-      EncryptionKeyArn: !Sub "arn:aws:kms:${AWS::Region}:${AWS::AccountId}:key/PLACEHOLDER-KMS-KEY-ID"  # Optional
 
   BackupPlan:
     Type: AWS::Backup::BackupPlan
@@ -431,15 +455,16 @@ Resources:
           - RuleName: DailyRDSBackup
             TargetBackupVault: !Ref PrimaryBackupVault
             ScheduleExpression: cron(0 3 * * ? *)
-            ScheduleExpression: cron(0 3 * * ? *)
             StartWindowMinutes: 60
             CompletionWindowMinutes: 180
             Lifecycle:
-              DeleteAfterDays: 30
-            CopyActions:
-              - DestinationBackupVaultArn: !Sub arn:aws:backup:${DRRegion}:${AWS::AccountId}:backup-vault/AwesomeEnvDRVault
-                Lifecycle:
-                  DeleteAfterDays: 60
+              DeleteAfterDays: !Ref BackupRetentionDays
+            CopyActions: !If
+              - IsCrossRegionBackupEnabled
+              - - DestinationBackupVaultArn: !Sub arn:aws:backup:${DRRegion}:${AWS::AccountId}:backup-vault/AwesomeEnvDRVault
+                  Lifecycle:
+                    DeleteAfterDays: !Ref DRBackupRetentionDays
+              - !Ref AWS::NoValue
 
   BackupSelection:
     Type: AWS::Backup::BackupSelection
@@ -453,7 +478,6 @@ Resources:
 
   # ------------------
   # 7) SNS Alerts
-  # 7) SNS Alerts
   # ------------------
   BackupAlertsTopic:
     Type: AWS::SNS::Topic
@@ -465,8 +489,7 @@ Resources:
     Properties:
       TopicArn: !Ref BackupAlertsTopic
       Protocol: email
-      Endpoint: awesome@example.com # PLACEHOLDER: Replace with your email
-      Endpoint: awesome@example.com  # PLACEHOLDER: Replace with your email
+      Endpoint: awesome@example.com #This is a PLACEHOLDER here obviously: Replace with your email
 
 Outputs:
   VPCId:
@@ -494,21 +517,17 @@ Outputs:
     Value: !GetAtt MyLoadBalancer.DNSName
 
   S3BucketName:
-  S3BucketName:
     Description: Name of the S3 bucket
     Value: !Ref MyS3Bucket
 
-  DynamoDBTableName:
   DynamoDBTableName:
     Description: Name of the DynamoDB table
     Value: !Ref DynamoDBTable
 
   DBInstanceEndpoint:
-  DBInstanceEndpoint:
     Description: Endpoint of the RDS instance
     Value: !GetAtt MyDBInstance.Endpoint.Address
 
-  BackupVaultName:
   BackupVaultName:
     Description: Name of the Backup Vault
     Value: !Ref PrimaryBackupVault
