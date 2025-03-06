@@ -12,7 +12,6 @@ Parameters:
     Default: us-west-2
     Description: The region to copy backups for DR.
 
-  # Add the new parameters here
   EnableCrossRegionBackup:
     Type: String
     AllowedValues:
