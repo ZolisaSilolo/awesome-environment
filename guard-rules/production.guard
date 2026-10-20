@@ -1,0 +1,19 @@
+let template = Resources.*
+
+rule s3_encrypted when %template.Type == "AWS::S3::Bucket" {
+  %template.Properties.BucketEncryption.ServerSideEncryptionConfiguration[*].ServerSideEncryptionByDefault.SSEAlgorithm IN ["aws:kms", "AES256"]
+}
+
+rule rds_encrypted when %template.Type == "AWS::RDS::DBInstance" {
+  %template.Properties.StorageEncrypted == true
+  %template.Properties.PubliclyAccessible == false
+}
+
+rule no_wide_ssh when %template.Type == "AWS::EC2::SecurityGroup" {
+  %template.Properties.SecurityGroupIngress[*].CidrIp != "0.0.0.0/0" OR
+  %template.Properties.SecurityGroupIngress[*].FromPort != 22
+}
+
+rule kms_rotation when %template.Type == "AWS::KMS::Key" {
+  %template.Properties.EnableKeyRotation == true
+}
